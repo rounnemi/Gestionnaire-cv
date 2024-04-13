@@ -9,6 +9,7 @@ import { Cv } from './cv/entities/cv.entity';
 import { Skill } from './skill/entities/skill.entity';
 import { User } from './user/entities/user.entity';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -20,11 +21,12 @@ import { AuthMiddleware } from './auth/auth.middleware';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: '',
+      password: 'sql123',
       database: 'newnest',
       entities: [Cv, User, Skill],
       synchronize: true,
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

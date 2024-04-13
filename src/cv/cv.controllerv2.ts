@@ -15,13 +15,11 @@ import { Token } from 'src/token/token.decorator';
 export class CvControllerV2 {
   constructor(private readonly cvService: CvService) {}
   @Post()
-  create(
-    @Body() cv: Cv,
-    @Body('userId') userId: number,
-    @Body('skillIds') skillIds: number[],
-    @Token() token,
-  ): Promise<Cv> {
-    if (token.userId !== userId) {
+  create(@Body() cv: Cv, @Token() token): Promise<Cv> {
+    if (!cv.user || !cv.user.id) {
+      throw new Error('User information is missing for the CV');
+    }
+    if (token.userId !== cv.user.id) {
       throw new UnauthorizedException(
         'Unauthorized: User does not have permission to create this CV',
       );
@@ -39,6 +37,9 @@ export class CvControllerV2 {
     if (!cv) {
       throw new NotFoundException('CV not found');
     }
+    if (!cv.user || !cv.user.id) {
+      throw new Error('User information is missing for the CV');
+    }
     if (token.userId !== cv.user.id) {
       throw new UnauthorizedException(
         'Unauthorized: User does not have permission to update this CV',
@@ -52,6 +53,9 @@ export class CvControllerV2 {
     const cv = await this.cvService.findOne(+id);
     if (!cv) {
       throw new NotFoundException('CV not found');
+    }
+    if (!cv.user || !cv.user.id) {
+      throw new Error('User information is missing for the CV');
     }
     if (token.userId !== cv.user.id) {
       throw new UnauthorizedException(
