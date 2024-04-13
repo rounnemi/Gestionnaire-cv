@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSkillDto } from './dto/create-skill.dto';
-import { UpdateSkillDto } from './dto/update-skill.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Skill } from './entities/skill.entity';
 import { Repository } from 'typeorm';
@@ -29,7 +28,12 @@ export class SkillService {
     return this.skillRepository.findOneBy({ id: id });
   }
 
-  async remove(id: number): Promise<void> {
-    await this.skillRepository.delete(id);
+  async remove(id: number): Promise<string> {
+    const deletedSkill = await this.skillRepository.findOneBy({ id });
+    if (!deletedSkill) {
+      throw new NotFoundException(`Skill with ID ${id} not found.`);
+    }
+    await this.skillRepository.remove(deletedSkill);
+    return `Skill ${id} is deleted.`;
   }
 }
