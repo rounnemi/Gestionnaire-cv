@@ -7,17 +7,19 @@ import { Skill } from './skill/entities/skill.entity';
 
 import {
   randEmail,
-  randFilePath,
   randFirstName,
   randJobTitle,
   randLastName,
-  randNumber,
   randPassword,
   randSkill,
   randUserName,
 } from '@ngneat/falso';
 import { User } from './user/entities/user.entity';
 import { Cv } from './cv/entities/cv.entity';
+
+function randAge() {
+  return Math.floor(Math.random() * (60 - 18 + 1)) + 18;
+}
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -29,7 +31,7 @@ async function bootstrap() {
 
   // Création des compétences
   const skills = [];
-  for (let j = 0; j < 12; j++) {
+  for (let j = 0; j < 48; j++) {
     const skill = new Skill();
     skill.designation = randSkill();
     await skillService.create(skill);
@@ -39,14 +41,14 @@ async function bootstrap() {
   const users = [];
 
   const cvs = [];
-  for (let j = 0; j < 6; j++) {
+  for (let j = 0; j < 24; j++) {
     const cv = new Cv();
-    cv.age = randNumber();
+    cv.age = randAge();
     cv.Cin = randEmail();
     cv.firstname = randFirstName();
     cv.Job = randJobTitle();
     cv.name = randLastName();
-    cv.path = randFilePath();
+    cv.path = '';
     cv.skills = [skills[j], skills[j + 1], skills[j + 2]];
     const user = new User();
     user.username = randUserName();

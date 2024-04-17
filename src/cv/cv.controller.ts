@@ -7,9 +7,11 @@ import {
   Param,
   Delete,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './entities/cv.entity';
+import { FilterDto } from './dto/filter.dto';
 
 @Controller('cv')
 export class CvController {
@@ -23,6 +25,11 @@ export class CvController {
   @Get('detail/:id')
   findOne(@Param('id') id: string): Promise<Cv> {
     return this.cvService.findOne(+id);
+  }
+
+  @Get('filter')
+  findAllFiltered(@Query() filterDto: FilterDto): Promise<Cv[]> {
+    return this.cvService.findAllFiltered(filterDto);
   }
 
   @Post()
