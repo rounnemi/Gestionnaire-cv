@@ -3,6 +3,7 @@ import { User } from '../../user/entities/user.entity';
 import {
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -33,5 +34,6 @@ export class Cv {
   @ManyToOne(() => User, (user) => user.cvs)
   user: User;
   @ManyToMany(() => Skill, (cv) => cv.cvs)
+  @JoinTable()
   skills: Skill[];
 }
