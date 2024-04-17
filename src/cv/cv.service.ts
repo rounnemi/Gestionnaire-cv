@@ -16,18 +16,18 @@ export class CvService {
     return this.cvRepository.find();
   }
 
-  async findOne(id: number): Promise<Cv> {
-    return this.cvRepository.findOneBy({ id: id });
-  }
-
   /*async findOne(id: number): Promise<Cv> {
+    return this.cvRepository.findOneBy({ id: id });
+  }*/
+
+  async findOne(id: number): Promise<Cv> {
     return this.cvRepository
       .createQueryBuilder('cv')
       .leftJoinAndSelect('cv.user', 'user')
       .leftJoinAndSelect('cv.skills', 'skills')
       .where('cv.id = :id', { id })
       .getOne();
-  }*/
+  }
 
   async findAllFiltered(filterDto: FilterDto): Promise<Cv[]> {
     const { query, age } = filterDto;

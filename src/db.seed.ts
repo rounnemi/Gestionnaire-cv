@@ -36,7 +36,8 @@ async function bootstrap() {
     skills.push(skill);
   }
 
-  // Create and associate CVs with Skills
+  const users = [];
+
   const cvs = [];
   for (let j = 0; j < 6; j++) {
     const cv = new Cv();
@@ -46,7 +47,7 @@ async function bootstrap() {
     cv.Job = randJobTitle();
     cv.name = randLastName();
     cv.path = randFilePath();
-    // Don't associate skills here
+    cv.skills = [skills[j], skills[j + 1], skills[j + 2]];
     const user = new User();
     user.username = randUserName();
     user.password = randPassword();
@@ -54,24 +55,11 @@ async function bootstrap() {
     await userService.create(user);
     cv.user = user;
 
-    // Persist CV first
-    const createdCv = await cvService.create(cv);
-    cvs.push(createdCv);
-  }
+    await cvService.create(cv);
 
-  // Now associate CVs with Skills
-  for (let i = 0; i < cvs.length; i++) {
-    cvs[i].skills = []; // Initialize skills array
-    for (let j = 0; j < 3; j++) {
-      // Randomly associate skills
-      const skillIndex = Math.floor(Math.random() * skills.length);
-      const skill = skills[skillIndex];
-      cvs[i].skills.push(skill);
-    }
-    // Update CV entity with associated skills
-    await cvService.update(cvs[i].id, { skills: cvs[i].skills });
+    users.push(user);
+    cvs.push(cv);
   }
-
   // Fermeture de l'application
   await app.close();
 }
