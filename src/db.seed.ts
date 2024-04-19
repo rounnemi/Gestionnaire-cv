@@ -54,6 +54,9 @@ async function bootstrap() {
     user.username = randUserName();
     user.password = randPassword();
     user.email = randEmail();
+    const words = ['admin', 'user'];
+    const randNum = Math.floor(Math.random() * words.length);
+    user.role = words[randNum];
     await userService.create(user);
     cv.user = user;
 

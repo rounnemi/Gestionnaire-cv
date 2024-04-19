@@ -9,6 +9,7 @@ import { CvControllerV2 } from './cv.controllerv2';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { SkillModule } from '../skill/skill.module';
+import { AdminGuard } from 'src/admin/admin.guard';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { SkillModule } from '../skill/skill.module';
   ],
 
   controllers: [CvController, CvControllerV2],
-  providers: [CvService],
+  providers: [CvService, AdminGuard],
 })
 export class CvModule {}
