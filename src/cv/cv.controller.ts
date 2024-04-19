@@ -8,10 +8,14 @@ import {
   Delete,
   Patch,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './entities/cv.entity';
 import { FilterDto } from './dto/filter.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from 'src/middleware/file-upload.middleware';
 
 @Controller('cv')
 export class CvController {
@@ -45,5 +49,22 @@ export class CvController {
   @Delete(':id')
   remove(@Param('id') id: string): Promise<string> {
     return this.cvService.remove(+id);
+  }
+
+  @Get('all')
+  async getAll(
+    @Query('page') page = 1,
+    @Query('pageSize') pageSize = 10,
+  ): Promise<Cv[]> {
+    return this.cvService.findAllPaginated(page, pageSize);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  async uploadFile(@UploadedFile() file, @Body('cvId') cvId: number) {
+    const existingCv = await this.cvService.findOneByIdAndSelect(cvId);
+    existingCv.path = file.path;
+    await this.cvService.update(existingCv.id, existingCv);
+    return { filename: file.filename };
   }
 }

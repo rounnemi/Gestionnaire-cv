@@ -3,7 +3,6 @@ import { User } from '../../user/entities/user.entity';
 import {
   Column,
   Entity,
-  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -31,9 +30,8 @@ export class Cv {
   @Column()
   path: string;
 
-  @ManyToOne(() => User, (user) => user.cvs)
+  @ManyToOne(() => User, (user) => user.cvs, { eager: true })
   user: User;
-  @ManyToMany(() => Skill, (cv) => cv.cvs)
-  @JoinTable()
+  @ManyToMany(() => Skill, (cv) => cv.cvs, { eager: true })
   skills: Skill[];
 }

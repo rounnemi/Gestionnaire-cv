@@ -41,14 +41,14 @@ export class CvService {
     });
   }
 
-  // async findAllPaginated(page: number, pageSize: number): Promise<Cv[]> {
-  //   const skip = (page - 1) * pageSize;
-  //   const take = pageSize;
-  //   return this.cvRepository.find({
-  //     skip,
-  //     take,
-  //   });
-  // }
+  async findAllPaginated(page: number, pageSize: number): Promise<Cv[]> {
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+    return this.cvRepository.find({
+      skip,
+      take,
+    });
+  }
 
   async create(cv: CreateCvDto): Promise<Cv> {
     return this.cvRepository.save(cv);

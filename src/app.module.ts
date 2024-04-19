@@ -10,6 +10,7 @@ import { Skill } from './skill/entities/skill.entity';
 import { User } from './user/entities/user.entity';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { AuthModule } from './auth/auth.module';
+import { MulterConfigModule } from './multer/multer.module';
 
 @Module({
   imports: [
@@ -21,12 +22,13 @@ import { AuthModule } from './auth/auth.module';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'sql123',
+      password: '',
       database: 'newnest',
       entities: [Cv, User, Skill],
       synchronize: true,
     }),
     AuthModule,
+    MulterConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],
