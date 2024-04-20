@@ -10,12 +10,14 @@ import {
   Query,
   UseInterceptors,
   UploadedFile,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './entities/cv.entity';
 import { FilterDto } from './dto/filter.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/middleware/file-upload.middleware';
+import { GetPaginatedCvDto } from './dto/paginated-cv.dto';
 
 @Controller('cv')
 export class CvController {
@@ -53,9 +55,10 @@ export class CvController {
 
   @Get('all')
   async getAll(
-    @Query('page') page = 1,
-    @Query('pageSize') pageSize = 10,
+    @Query(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+    mesQueryParams: GetPaginatedCvDto,
   ): Promise<Cv[]> {
+    const { page = 1, pageSize = 10 } = mesQueryParams;
     return this.cvService.findAllPaginated(page, pageSize);
   }
 

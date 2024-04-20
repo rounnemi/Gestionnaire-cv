@@ -22,7 +22,7 @@ import { MulterConfigModule } from './multer/multer.module';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'sql123',
+      password: '',
       database: 'newnest',
       entities: [Cv, User, Skill],
       synchronize: true,
