@@ -9,11 +9,13 @@ import {
   NotFoundException,
   Get,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './entities/cv.entity';
 import { Token } from 'src/token/token.decorator';
 import { AdminGuard } from 'src/admin/admin.guard';
+import { CreateCvDto } from './dto/create-cv.dto';
 
 @Controller('cv/v2')
 export class CvControllerV2 {
@@ -26,7 +28,7 @@ export class CvControllerV2 {
   }
 
   @Get('detail/:id')
-  async findOne(@Param('id') id: string, @Token() token): Promise<Cv> {
+  async findOne(@Param('id', ParseIntPipe) id, @Token() token): Promise<Cv> {
     const cv = await this.cvService.findOne(+id);
     if (!cv) {
       throw new NotFoundException('CV not found');
@@ -42,11 +44,11 @@ export class CvControllerV2 {
   }
 
   @Post()
-  create(@Body() cv: Cv, @Token() token): Promise<Cv> {
-    if (!cv.user || !cv.user.id) {
+  create(@Body() cv: CreateCvDto, @Token() token): Promise<Cv> {
+    if (!cv.userID) {
       throw new Error('User information is missing for the CV');
     }
-    if (token.userId !== cv.user.id) {
+    if (token.userId !== cv.userID) {
       throw new UnauthorizedException(
         'Unauthorized: User does not have permission to create this CV',
       );
@@ -56,11 +58,11 @@ export class CvControllerV2 {
 
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id,
     @Body() newData: Partial<Cv>,
     @Token() token,
   ): Promise<Cv> {
-    const cv = await this.cvService.findOne(+id);
+    const cv = await this.cvService.findOne(id);
     if (!cv) {
       throw new NotFoundException('CV not found');
     }
@@ -76,8 +78,8 @@ export class CvControllerV2 {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @Token() token): Promise<string> {
-    const cv = await this.cvService.findOne(+id);
+  async remove(@Param('id', ParseIntPipe) id, @Token() token): Promise<string> {
+    const cv = await this.cvService.findOne(id);
     if (!cv) {
       throw new NotFoundException('CV not found');
     }

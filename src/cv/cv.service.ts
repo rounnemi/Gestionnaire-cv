@@ -2,14 +2,20 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cv } from './entities/cv.entity';
-import { Like, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
+import { User } from 'src/user/entities/user.entity';
+import { Skill } from 'src/skill/entities/skill.entity';
 
 @Injectable()
 export class CvService {
   constructor(
     @InjectRepository(Cv)
     private cvRepository: Repository<Cv>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Skill)
+    private skillRepository: Repository<Skill>,
   ) {}
 
   async findAll(): Promise<Cv[]> {
@@ -20,6 +26,9 @@ export class CvService {
     return this.cvRepository.findOneBy({ id: id });
   }*/
 
+  async createseed(cv: Cv): Promise<Cv> {
+    return this.cvRepository.save(cv);
+  }
   async findOne(id: number): Promise<Cv> {
     return this.cvRepository
       .createQueryBuilder('cv')
@@ -51,7 +60,23 @@ export class CvService {
   }
 
   async create(cv: CreateCvDto): Promise<Cv> {
-    return this.cvRepository.save(cv);
+    const user = await this.userRepository.findOneBy({ id: cv.userID });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const skills = await this.skillRepository.find({
+      where: { id: In(cv.skillsId) },
+    });
+
+    if (skills.length !== cv.skillsId.length) {
+      throw new Error('Some skills not found');
+    }
+    const newcv = this.cvRepository.create(cv);
+
+    newcv.user = user;
+    newcv.skills = skills;
+    return this.cvRepository.save(newcv);
   }
 
   async update(id: number, newData: Partial<Cv>): Promise<Cv> {

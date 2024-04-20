@@ -60,7 +60,7 @@ async function bootstrap() {
     await userService.create(user);
     cv.user = user;
 
-    await cvService.create(cv);
+    await cvService.createseed(cv);
 
     users.push(user);
     cvs.push(cv);

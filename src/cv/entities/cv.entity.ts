@@ -27,7 +27,7 @@ export class Cv {
   @Column()
   Job: string;
 
-  @Column()
+  @Column({ default: '' })
   path: string;
 
   @ManyToOne(() => User, (user) => user.cvs, { eager: true })

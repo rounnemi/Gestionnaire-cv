@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UploadedFile,
   ValidationPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './entities/cv.entity';
@@ -18,6 +19,7 @@ import { FilterDto } from './dto/filter.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/middleware/file-upload.middleware';
 import { GetPaginatedCvDto } from './dto/paginated-cv.dto';
+import { CreateCvDto } from './dto/create-cv.dto';
 
 @Controller('cv')
 export class CvController {
@@ -29,8 +31,8 @@ export class CvController {
   }
 
   @Get('detail/:id')
-  findOne(@Param('id') id: string): Promise<Cv> {
-    return this.cvService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id): Promise<Cv> {
+    return this.cvService.findOne(id);
   }
 
   @Get('filter')
@@ -39,18 +41,24 @@ export class CvController {
   }
 
   @Post()
-  create(@Body() cv: Cv): Promise<Cv> {
+  create(
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+    cv: CreateCvDto,
+  ): Promise<Cv> {
     return this.cvService.create(cv);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() newData: Partial<Cv>): Promise<Cv> {
-    return this.cvService.update(+id, newData);
+  update(
+    @Param('id', ParseIntPipe) id,
+    @Body() newData: Partial<Cv>,
+  ): Promise<Cv> {
+    return this.cvService.update(id, newData);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<string> {
-    return this.cvService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id): Promise<string> {
+    return this.cvService.remove(id);
   }
 
   @Get('all')
