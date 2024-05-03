@@ -23,7 +23,9 @@ import { CreateCvDto } from './dto/create-cv.dto';
 
 @Controller('cv')
 export class CvController {
-  constructor(private readonly cvService: CvService) {}
+  constructor(
+    private readonly cvService: CvService,
+  ) {}
 
   @Get()
   findAll(): Promise<Cv[]> {
@@ -41,11 +43,12 @@ export class CvController {
   }
 
   @Post()
-  create(
+  async create(
     @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     cv: CreateCvDto,
   ): Promise<Cv> {
-    return this.cvService.create(cv);
+    const cvDone = this.cvService.create(cv);   
+    return cvDone;
   }
 
   @Patch(':id')

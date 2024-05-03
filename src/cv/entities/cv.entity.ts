@@ -1,3 +1,4 @@
+import { HistoriqueOperation } from '../../Historique/HistoriqueOperation.entity';
 import { Skill } from '../../skill/entities/skill.entity';
 import { User } from '../../user/entities/user.entity';
 import {
@@ -5,6 +6,7 @@ import {
   Entity,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 @Entity()
@@ -34,4 +36,6 @@ export class Cv {
   user: User;
   @ManyToMany(() => Skill, (cv) => cv.cvs, { eager: true })
   skills: Skill[];
+  @OneToMany(() => HistoriqueOperation, (historique) => historique.cv)
+  historiques: HistoriqueOperation[];
 }

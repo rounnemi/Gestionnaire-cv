@@ -6,6 +6,9 @@ import { In, Like, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Skill } from 'src/skill/entities/skill.entity';
+import { CvEvents } from '../common/events.config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { HistoriqueOperation } from 'src/Historique/HistoriqueOperation.entity';
 
 @Injectable()
 export class CvService {
@@ -16,6 +19,7 @@ export class CvService {
     private userRepository: Repository<User>,
     @InjectRepository(Skill)
     private skillRepository: Repository<Skill>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(): Promise<Cv[]> {
@@ -73,9 +77,13 @@ export class CvService {
       throw new Error('Some skills not found');
     }
     const newcv = this.cvRepository.create(cv);
-
     newcv.user = user;
     newcv.skills = skills;
+    this.eventEmitter.emit(
+      CvEvents.CV_CREATED,
+      { cv: newcv, userid: user.id }, // Envoyez l'objet directement sans encapsulation
+    );
+
     return this.cvRepository.save(newcv);
   }
 
