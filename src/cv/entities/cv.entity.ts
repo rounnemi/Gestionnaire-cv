@@ -36,6 +36,8 @@ export class Cv {
   user: User;
   @ManyToMany(() => Skill, (cv) => cv.cvs, { eager: true })
   skills: Skill[];
-  @OneToMany(() => HistoriqueOperation, (historique) => historique.cv)
+  @OneToMany(() => HistoriqueOperation, (historique) => historique.cv, {
+    onDelete: 'CASCADE',
+  })
   historiques: HistoriqueOperation[];
 }

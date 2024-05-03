@@ -88,10 +88,14 @@ export class CvService {
   }
 
   async update(id: number, newData: Partial<Cv>): Promise<Cv> {
-    console.log(newData);
     await this.cvRepository.update(id, newData);
+    const cv = this.cvRepository.findOneBy({ id: id });
+    this.eventEmitter.emit(
+      CvEvents.CV_UPDATED,
+      { cv: cv, userid: (await cv).user.id }, // Envoyez l'objet directement sans encapsulation
+    );
 
-    return this.cvRepository.findOneBy({ id: id });
+    return cv;
   }
 
   async remove(id: number): Promise<string> {
@@ -99,6 +103,7 @@ export class CvService {
     if (!deletedCv) {
       throw new NotFoundException(`Skill with ID ${id} not found.`);
     }
+
     await this.cvRepository.remove(deletedCv);
     return `cv ${id} is deleted.`;
   }

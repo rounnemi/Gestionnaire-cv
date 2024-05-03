@@ -12,11 +12,11 @@ export class HistoriqueOperation {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   date: Date;
 
-  @ManyToOne(() => Cv, (cv) => cv.historiques)
+  @ManyToOne(() => Cv, (cv) => cv.historiques, {
+    onDelete: 'CASCADE',
+  })
   cv: Cv;
 
   @Column()
   userid: number;
- 
-  
 }

@@ -12,12 +12,16 @@ export class CvEventHandler {
   constructor(
     @InjectRepository(HistoriqueOperation)
     private readonly historiqueRepo: Repository<HistoriqueOperation>,
+    @InjectRepository(Cv)
+    private readonly Cvrepo: Repository<Cv>,
   ) {}
   @OnEvent(CvEvents.CV_CREATED)
   async handleCvCreated(payload: { cv: Cv; userid: number }) {
     try {
       const historique = new HistoriqueOperation();
-      historique.cv = payload.cv; // Utilisez les données du payload
+      const cvv = await this.Cvrepo.findOneBy({ id: payload.cv.id });
+
+      historique.cv = cvv; // Utilisez les données du payload
       historique.userid = payload.userid; // Utilisez les données du payload
       historique.type = CvEvents.CV_CREATED;
       await this.historiqueRepo.save(historique);
@@ -26,17 +30,24 @@ export class CvEventHandler {
         "Erreur lors de la gestion de l'événement CV_CREATED :",
         error,
       );
-      // Gérer l'erreur
     }
   }
 
   @OnEvent(CvEvents.CV_UPDATED)
-  handleCvUpdated(payload: { cvId: number; newData: any }) {
-    // Logique à effectuer lorsqu'un CV est mis à jour
-  }
+  async handleCvUpdated(payload: { cv: Cv; userid: number }) {
+    try {
+      const historique = new HistoriqueOperation();
+      const cvv = await this.Cvrepo.findOneBy({ id: payload.cv.id });
 
-  @OnEvent(CvEvents.CV_DELETED)
-  handleCvDeleted(cvId: number) {
-    // Logique à effectuer lorsqu'un CV est supprimé
+      historique.cv = cvv; // Utilisez les données du payload
+      historique.userid = payload.userid; // Utilisez les données du payload
+      historique.type = CvEvents.CV_UPDATED;
+      await this.historiqueRepo.save(historique);
+    } catch (error) {
+      console.error(
+        "Erreur lors de la gestion de l'événement CV_CREATED :",
+        error,
+      );
+    }
   }
 }
