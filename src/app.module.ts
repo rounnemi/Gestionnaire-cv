@@ -11,30 +11,38 @@ import { User } from './user/entities/user.entity';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { AuthModule } from './auth/auth.module';
 import { MulterConfigModule } from './multer/multer.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CvEventHandler } from './Historique/cv.event.handler';
+import { HistoriqueOperation } from './Historique/HistoriqueOperation.entity';
+import { historiqueModule } from './Historique/historique.module';
+import { Timestamp } from './common/Timestamp.entity';
 
 @Module({
   imports: [
     SkillModule,
     CvModule,
     UserModule,
+    historiqueModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: '',
+      password: 'nour',
       database: 'newnest',
-      entities: [Cv, User, Skill],
+      entities: [Cv, User, Skill ,HistoriqueOperation ] ,
       synchronize: true,
     }),
     AuthModule,
     MulterConfigModule,
+    EventEmitterModule.forRoot()
+
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('cv/v2');
+    consumer.apply(AuthMiddleware).forRoutes('cv/v2' ,'cv/sse');
   }
 }

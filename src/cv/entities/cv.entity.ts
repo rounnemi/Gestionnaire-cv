@@ -1,3 +1,5 @@
+import { Timestamp } from 'src/common/Timestamp.entity';
+import { HistoriqueOperation } from '../../Historique/HistoriqueOperation.entity';
 import { Skill } from '../../skill/entities/skill.entity';
 import { User } from '../../user/entities/user.entity';
 import {
@@ -5,10 +7,11 @@ import {
   Entity,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 @Entity()
-export class Cv {
+export class Cv extends Timestamp {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -32,6 +35,10 @@ export class Cv {
 
   @ManyToOne(() => User, (user) => user.cvs, { eager: true })
   user: User;
-  @ManyToMany(() => Skill, (cv) => cv.cvs, { eager: true })
+  @ManyToMany(() => Skill, (cv) => cv.cvs)
   skills: Skill[];
+  @OneToMany(() => HistoriqueOperation, (historique) => historique.cv, {
+    onDelete: 'CASCADE',
+  })
+  historiques: HistoriqueOperation[];
 }

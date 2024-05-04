@@ -6,6 +6,10 @@ import { In, Like, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Skill } from 'src/skill/entities/skill.entity';
+import { CvEvents } from '../common/events.config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { HistoriqueOperation } from 'src/Historique/HistoriqueOperation.entity';
+import { CvEvent } from 'src/events/cv.event';
 
 @Injectable()
 export class CvService {
@@ -16,6 +20,7 @@ export class CvService {
     private userRepository: Repository<User>,
     @InjectRepository(Skill)
     private skillRepository: Repository<Skill>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(): Promise<Cv[]> {
@@ -73,25 +78,41 @@ export class CvService {
       throw new Error('Some skills not found');
     }
     const newcv = this.cvRepository.create(cv);
-
+    const result = this.cvRepository.save(newcv);
     newcv.user = user;
     newcv.skills = skills;
-    return this.cvRepository.save(newcv);
+    this.eventEmitter.emit(
+      'cv-event',
+      new CvEvent(await result, user, CvEvents.CV_CREATED),
+    );
+
+    return result;
   }
 
   async update(id: number, newData: Partial<Cv>): Promise<Cv> {
-    console.log(newData);
     await this.cvRepository.update(id, newData);
+    const cv = this.cvRepository.findOneBy({ id: id });
+    this.eventEmitter.emit(
+      'cv-event',
+      new CvEvent(await cv, (await cv).user, CvEvents.CV_UPDATED),
+    );
 
-    return this.cvRepository.findOneBy({ id: id });
+    return cv;
   }
 
   async remove(id: number): Promise<string> {
     const deletedCv = await this.cvRepository.findOneBy({ id });
+    console.log(deletedCv);
     if (!deletedCv) {
-      throw new NotFoundException(`Skill with ID ${id} not found.`);
+      throw new NotFoundException(`CV with ID ${id} not found.`);
     }
-    await this.cvRepository.remove(deletedCv);
+    await this.cvRepository.softDelete(deletedCv.id);
+
+    this.eventEmitter.emit(
+      'cv-event',
+      new CvEvent(await deletedCv, (await deletedCv).user, CvEvents.CV_DELETED),
+    );
+
     return `cv ${id} is deleted.`;
   }
 
