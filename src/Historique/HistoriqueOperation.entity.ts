@@ -17,5 +17,5 @@ export class HistoriqueOperation {
   cv: Cv;
 
   @ManyToOne(() => User, (user) => user.historiques)
-  performedBy : User ;
+  performedBy: User;
 }

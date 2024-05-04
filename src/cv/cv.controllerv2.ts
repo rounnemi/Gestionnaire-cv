@@ -83,15 +83,12 @@ export class CvControllerV2 {
     if (!cv) {
       throw new NotFoundException('CV not found');
     }
-    if (!cv.user || !cv.user.id) {
-      throw new Error('User information is missing for the CV');
-    }
-    if (token.userId !== cv.user.id) {
+    if (token.userId !== cv.user.id || token.role !== 'admin') {
       throw new UnauthorizedException(
         'Unauthorized: User does not have permission to delete this CV',
       );
     }
 
-    return this.cvService.remove(+id);
+    return this.cvService.remove(+id, token.userId);
   }
 }

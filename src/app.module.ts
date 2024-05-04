@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,10 +13,8 @@ import { AuthMiddleware } from './auth/auth.middleware';
 import { AuthModule } from './auth/auth.module';
 import { MulterConfigModule } from './multer/multer.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { CvEventHandler } from './Historique/cv.event.handler';
 import { HistoriqueOperation } from './Historique/HistoriqueOperation.entity';
 import { historiqueModule } from './Historique/historique.module';
-import { Timestamp } from './common/Timestamp.entity';
 
 @Module({
   imports: [

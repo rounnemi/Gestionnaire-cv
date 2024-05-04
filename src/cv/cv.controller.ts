@@ -13,8 +13,7 @@ import {
   ValidationPipe,
   ParseIntPipe,
   Sse,
-  UseGuards,
-  UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './entities/cv.entity';
@@ -25,11 +24,7 @@ import { GetPaginatedCvDto } from './dto/paginated-cv.dto';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { fromEvent, map, Observable } from 'rxjs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { AdminGuard } from 'src/admin/admin.guard';
 import { Token } from 'src/token/token.decorator';
-import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
-import { CvEvent } from 'src/events/cv.event';
-import { CvEvents } from 'src/common/events.config';
 
 @Controller('cv')
 export class CvController {
@@ -83,8 +78,12 @@ export class CvController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id): Promise<string> {
-    return this.cvService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id): Promise<string> {
+    const cv = await this.cvService.findOne(id);
+    if (!cv) {
+      throw new NotFoundException('CV not found');
+    }
+    return this.cvService.remove(id, cv.user.id);
   }
 
   @Get('all')

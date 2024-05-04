@@ -8,7 +8,6 @@ import { User } from 'src/user/entities/user.entity';
 import { Skill } from 'src/skill/entities/skill.entity';
 import { CvEvents } from '../common/events.config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { HistoriqueOperation } from 'src/Historique/HistoriqueOperation.entity';
 import { CvEvent } from 'src/events/cv.event';
 
 @Injectable()
@@ -83,7 +82,7 @@ export class CvService {
     newcv.skills = skills;
     this.eventEmitter.emit(
       'cv-event',
-      new CvEvent(await result, user, CvEvents.CV_CREATED),
+      new CvEvent(await result, (await result).user, CvEvents.CV_CREATED),
     );
 
     return result;
@@ -100,17 +99,21 @@ export class CvService {
     return cv;
   }
 
-  async remove(id: number): Promise<string> {
+  async remove(id: number, userId: number): Promise<string> {
     const deletedCv = await this.cvRepository.findOneBy({ id });
     console.log(deletedCv);
     if (!deletedCv) {
       throw new NotFoundException(`CV with ID ${id} not found.`);
     }
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
     await this.cvRepository.softDelete(deletedCv.id);
 
     this.eventEmitter.emit(
       'cv-event',
-      new CvEvent(await deletedCv, (await deletedCv).user, CvEvents.CV_DELETED),
+      new CvEvent(await deletedCv, user, CvEvents.CV_DELETED),
     );
 
     return `cv ${id} is deleted.`;
