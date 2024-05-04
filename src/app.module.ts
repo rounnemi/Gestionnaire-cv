@@ -43,6 +43,6 @@ import { Timestamp } from './common/Timestamp.entity';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('cv/v2');
+    consumer.apply(AuthMiddleware).forRoutes('cv/v2' ,'cv/sse');
   }
 }

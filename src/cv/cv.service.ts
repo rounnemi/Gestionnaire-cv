@@ -82,8 +82,8 @@ export class CvService {
     newcv.user = user;
     newcv.skills = skills;
     this.eventEmitter.emit(
-      CvEvents.CV_CREATED,
-      new CvEvent(await result, user),
+      'cv-event',
+      new CvEvent(await result, user, CvEvents.CV_CREATED),
     );
 
     return result;
@@ -93,8 +93,8 @@ export class CvService {
     await this.cvRepository.update(id, newData);
     const cv = this.cvRepository.findOneBy({ id: id });
     this.eventEmitter.emit(
-      CvEvents.CV_UPDATED,
-      new CvEvent(await cv, (await cv).user),
+      'cv-event',
+      new CvEvent(await cv, (await cv).user, CvEvents.CV_UPDATED),
     );
 
     return cv;
@@ -106,12 +106,13 @@ export class CvService {
     if (!deletedCv) {
       throw new NotFoundException(`CV with ID ${id} not found.`);
     }
+    await this.cvRepository.softDelete(deletedCv.id);
+
     this.eventEmitter.emit(
-      CvEvents.CV_DELETED,
-      new CvEvent(await deletedCv, (await deletedCv).user),
+      'cv-event',
+      new CvEvent(await deletedCv, (await deletedCv).user, CvEvents.CV_DELETED),
     );
 
-    await this.cvRepository.softDelete(deletedCv.id);
     return `cv ${id} is deleted.`;
   }
 

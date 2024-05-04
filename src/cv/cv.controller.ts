@@ -12,6 +12,9 @@ import {
   UploadedFile,
   ValidationPipe,
   ParseIntPipe,
+  Sse,
+  UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './entities/cv.entity';
@@ -20,10 +23,31 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/middleware/file-upload.middleware';
 import { GetPaginatedCvDto } from './dto/paginated-cv.dto';
 import { CreateCvDto } from './dto/create-cv.dto';
+import { fromEvent, map, Observable } from 'rxjs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AdminGuard } from 'src/admin/admin.guard';
+import { Token } from 'src/token/token.decorator';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
+import { CvEvent } from 'src/events/cv.event';
+import { CvEvents } from 'src/common/events.config';
 
 @Controller('cv')
 export class CvController {
-  constructor(private readonly cvService: CvService) {}
+  constructor(
+    private readonly cvService: CvService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
+
+  @Sse('sse')
+  sse(@Token() token): Observable<MessageEvent> {
+    return fromEvent(this.eventEmitter, 'cv-event').pipe(
+      map((payload: any) => {
+        console.log(payload);
+        if (token.userId === payload.user.id || token.role === 'admin')
+          return new MessageEvent(payload.eventType, { data: payload });
+      }),
+    );
+  }
 
   @Get()
   findAll(): Promise<Cv[]> {
@@ -45,7 +69,8 @@ export class CvController {
     @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     cv: CreateCvDto,
   ): Promise<Cv> {
-    const cvDone = this.cvService.create(cv);
+    const cvDone = await this.cvService.create(cv);
+
     return cvDone;
   }
 

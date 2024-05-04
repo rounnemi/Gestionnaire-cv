@@ -6,5 +6,6 @@ export class CvEvent {
   constructor(
     public cv: Cv,
     public user: User,
+    public eventType: CvEvents,
   ) {}
 }

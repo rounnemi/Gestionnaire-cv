@@ -18,25 +18,18 @@ export class CvEventHandler {
     private readonly Cvrepo: Repository<Cv>,
   ) {}
 
-  @OnEvent(CvEvents.CV_CREATED)
+  @OnEvent('cv-event')
   async handleCvCreated(data: CvEvent) {
-    this.handleCv(data, CvEvents.CV_CREATED);
-  }
-  @OnEvent(CvEvents.CV_UPDATED)
-  async handleCvUpdated(data: CvEvent) {
-    this.handleCv(data, CvEvents.CV_UPDATED);
-  }
-  @OnEvent(CvEvents.CV_DELETED)
-  async handleCvDeleted(data: CvEvent) {
-    this.handleCv(data, CvEvents.CV_DELETED);
+    this.handleCv(data);
   }
 
-  async handleCv(data: CvEvent, operationType: string) {
+
+  async handleCv(data: CvEvent) {
     try {
       const historique = new HistoriqueOperation();
       historique.cv = data.cv;
       historique.performedBy = data.user;
-      historique.type = operationType;
+      historique.type = data.eventType;
       await this.historiqueRepo.save(historique);
     } catch (error) {
       console.error(
