@@ -1,8 +1,10 @@
+import { Timestamp } from 'src/common/Timestamp.entity';
 import { Cv } from '../../cv/entities/cv.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { HistoriqueOperation } from 'src/Historique/HistoriqueOperation.entity';
 
 @Entity()
-export class User {
+export class User extends Timestamp {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,4 +22,7 @@ export class User {
 
   @OneToMany(() => Cv, (cv) => cv.user)
   cvs: Cv[];
+
+  @OneToMany(() => HistoriqueOperation, (historique) => historique.performedBy)
+  historiques: HistoriqueOperation[];
 }

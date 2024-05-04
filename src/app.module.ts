@@ -15,6 +15,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CvEventHandler } from './Historique/cv.event.handler';
 import { HistoriqueOperation } from './Historique/HistoriqueOperation.entity';
 import { historiqueModule } from './Historique/historique.module';
+import { Timestamp } from './common/Timestamp.entity';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { historiqueModule } from './Historique/historique.module';
       username: 'root',
       password: 'nour',
       database: 'newnest',
-      entities: [Cv, User, Skill ,HistoriqueOperation] ,
+      entities: [Cv, User, Skill ,HistoriqueOperation ] ,
       synchronize: true,
     }),
     AuthModule,

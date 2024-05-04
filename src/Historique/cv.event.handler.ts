@@ -6,6 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HistoriqueOperation } from './HistoriqueOperation.entity';
 import { Repository } from 'typeorm';
 import { Cv } from 'src/cv/entities/cv.entity';
+import { User } from 'src/user/entities/user.entity';
+import { CvEvent } from 'src/events/cv.event';
 
 @Injectable()
 export class CvEventHandler {
@@ -15,33 +17,26 @@ export class CvEventHandler {
     @InjectRepository(Cv)
     private readonly Cvrepo: Repository<Cv>,
   ) {}
-  @OnEvent(CvEvents.CV_CREATED)
-  async handleCvCreated(payload: { cv: Cv; userid: number }) {
-    try {
-      const historique = new HistoriqueOperation();
-      const cvv = await this.Cvrepo.findOneBy({ id: payload.cv.id });
 
-      historique.cv = cvv; // Utilisez les données du payload
-      historique.userid = payload.userid; // Utilisez les données du payload
-      historique.type = CvEvents.CV_CREATED;
-      await this.historiqueRepo.save(historique);
-    } catch (error) {
-      console.error(
-        "Erreur lors de la gestion de l'événement CV_CREATED :",
-        error,
-      );
-    }
+  @OnEvent(CvEvents.CV_CREATED)
+  async handleCvCreated(data: CvEvent) {
+    this.handleCv(data, CvEvents.CV_CREATED);
+  }
+  @OnEvent(CvEvents.CV_UPDATED)
+  async handleCvUpdated(data: CvEvent) {
+    this.handleCv(data, CvEvents.CV_UPDATED);
+  }
+  @OnEvent(CvEvents.CV_DELETED)
+  async handleCvDeleted(data: CvEvent) {
+    this.handleCv(data, CvEvents.CV_DELETED);
   }
 
-  @OnEvent(CvEvents.CV_UPDATED)
-  async handleCvUpdated(payload: { cv: Cv; userid: number }) {
+  async handleCv(data: CvEvent, operationType: string) {
     try {
       const historique = new HistoriqueOperation();
-      const cvv = await this.Cvrepo.findOneBy({ id: payload.cv.id });
-
-      historique.cv = cvv; // Utilisez les données du payload
-      historique.userid = payload.userid; // Utilisez les données du payload
-      historique.type = CvEvents.CV_UPDATED;
+      historique.cv = data.cv;
+      historique.performedBy = data.user;
+      historique.type = operationType;
       await this.historiqueRepo.save(historique);
     } catch (error) {
       console.error(

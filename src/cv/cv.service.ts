@@ -9,6 +9,7 @@ import { Skill } from 'src/skill/entities/skill.entity';
 import { CvEvents } from '../common/events.config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { HistoriqueOperation } from 'src/Historique/HistoriqueOperation.entity';
+import { CvEvent } from 'src/events/cv.event';
 
 @Injectable()
 export class CvService {
@@ -77,14 +78,15 @@ export class CvService {
       throw new Error('Some skills not found');
     }
     const newcv = this.cvRepository.create(cv);
+    const result = this.cvRepository.save(newcv);
     newcv.user = user;
     newcv.skills = skills;
     this.eventEmitter.emit(
       CvEvents.CV_CREATED,
-      { cv: newcv, userid: user.id }, // Envoyez l'objet directement sans encapsulation
+      new CvEvent(await result, user),
     );
 
-    return this.cvRepository.save(newcv);
+    return result;
   }
 
   async update(id: number, newData: Partial<Cv>): Promise<Cv> {
@@ -92,7 +94,7 @@ export class CvService {
     const cv = this.cvRepository.findOneBy({ id: id });
     this.eventEmitter.emit(
       CvEvents.CV_UPDATED,
-      { cv: cv, userid: (await cv).user.id }, // Envoyez l'objet directement sans encapsulation
+      new CvEvent(await cv, (await cv).user),
     );
 
     return cv;
@@ -100,11 +102,16 @@ export class CvService {
 
   async remove(id: number): Promise<string> {
     const deletedCv = await this.cvRepository.findOneBy({ id });
+    console.log(deletedCv);
     if (!deletedCv) {
-      throw new NotFoundException(`Skill with ID ${id} not found.`);
+      throw new NotFoundException(`CV with ID ${id} not found.`);
     }
+    this.eventEmitter.emit(
+      CvEvents.CV_DELETED,
+      new CvEvent(await deletedCv, (await deletedCv).user),
+    );
 
-    await this.cvRepository.remove(deletedCv);
+    await this.cvRepository.softDelete(deletedCv.id);
     return `cv ${id} is deleted.`;
   }
 
