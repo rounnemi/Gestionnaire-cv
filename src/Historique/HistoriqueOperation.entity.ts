@@ -18,4 +18,7 @@ export class HistoriqueOperation {
 
   @ManyToOne(() => User, (user) => user.historiques)
   performedBy: User;
+
+  @Column({ type: 'json', nullable: true })
+  cvContent: string;
 }

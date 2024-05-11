@@ -27,7 +27,7 @@ import { historiqueModule } from './Historique/historique.module';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'nour',
+      password: 'sql123',
       database: 'newnest',
       entities: [Cv, User, Skill ,HistoriqueOperation ] ,
       synchronize: true,

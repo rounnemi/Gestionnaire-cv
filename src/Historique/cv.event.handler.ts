@@ -23,6 +23,7 @@ export class CvEventHandler {
       historique.cv = data.cv;
       historique.performedBy = data.user;
       historique.type = data.eventType;
+      historique.cvContent = JSON.stringify(data.cv);
       await this.historiqueRepository.save(historique);
     } catch (error) {
       console.error("Erreur lors de la gestion de l'événement", error);
